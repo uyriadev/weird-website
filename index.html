@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>UR OLD — chaotic 18th</title>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&display=swap');
+
+  :root {
+    --bg1: #0b0b0f;
+    --bg2: #25102a;
+    --accent: #ff66c4;
+    --neon: #39ff14;
+  }
+
+  html,body {
+    height: 100%;
+    margin: 0;
+    font-family: "IBM Plex Mono", monospace;
+    background: radial-gradient(circle at 10% 20%, #1b0033 0%, #000000 30%),
+                linear-gradient(120deg, rgba(255,0,150,0.06), rgba(0,200,255,0.03));
+    overflow: hidden;
+    color: #fdf9f3;
+  }
+
+  #bounceCanvas {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    display: block;
+  }
+
+  #ascii-container {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: all;
+  }
+
+  .ui {
+    position: fixed;
+    z-index: 12;
+    left: 16px;
+    top: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    pointer-events: auto;
+  }
+
+  .btn {
+    background: linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.08);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-size: 12px;
+    backdrop-filter: blur(6px) saturate(120%);
+  }
+
+  .btn:active { transform: translateY(1px) scale(.997); }
+
+  .vibes {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,100,200,0.06), transparent 8%),
+      radial-gradient(circle at 80% 70%, rgba(0,200,255,0.05), transparent 12%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0 2px, transparent 2px 10px);
+    mix-blend-mode: screen;
+    animation: swirl 12s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes swirl {
+    0% { transform: rotate(0deg) scale(1); filter: hue-rotate(0deg); }
+    50% { transform: rotate(6deg) scale(1.03); filter: hue-rotate(120deg); }
+    100% { transform: rotate(0deg) scale(1); filter: hue-rotate(360deg); }
+  }
+
+  .confetti {
+    position: fixed;
+    inset: 0;
+    z-index: 11;
+    pointer-events: none;
+    font-size: 28px;
+    mix-blend-mode: screen;
+  }
+
+  .confetti span {
+    position: absolute;
+    user-select: none;
+    animation: fall linear infinite;
+    transform-origin: center;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-30vh) rotate(0deg) scale(1); opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(130vh) rotate(720deg) scale(.8); opacity: 0; }
+  }
+
+  .glitch {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    z-index: 13;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: .05em;
+    color: #fff;
+    text-transform: uppercase;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,.6));
+    mix-blend-mode: screen;
+  }
+
+  .glitch::after, .glitch::before {
+    content: "UR OLD!";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: transparent;
+    -webkit-text-stroke: 0.6px rgba(255,255,255,0.1);
+  }
+
+  .glitch::before { left: 2px; text-shadow: -2px 0 var(--accent); clip-path: inset(0 0 60% 0); opacity: .7; }
+  .glitch::after { left: -2px; text-shadow: 2px 0 var(--neon); clip-path: inset(40% 0 0 0); opacity: .6; }
+
+  .cluster {
+    position: fixed;
+    right: 16px;
+    top: 16px;
+    z-index: 12;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: auto;
+  }
+
+  .big {
+    font-size: 22px;
+    padding: 14px 18px;
+    border-radius: 999px;
+  }
+
+  .pulse {
+    position: fixed;
+    left: 50%;
+    bottom: 40px;
+    transform: translateX(-50%);
+    z-index: 13;
+    font-weight: 900;
+    font-size: 24px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    animation: pulse 1.2s ease-in-out infinite;
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.05);
+    pointer-events: auto;
+  }
+
+  @keyframes pulse {
+    0% { transform: translateX(-50%) scale(1); filter: drop-shadow(0 6px 14px rgba(255,0,150,0.06)); }
+    50% { transform: translateX(-50%) scale(1.04); filter: drop-shadow(0 12px 30px rgba(0,200,255,0.09)); }
+    100% { transform: translateX(-50%) scale(1); }
+  }
+
+  .hint { position: fixed; right: 16px; bottom: 16px; z-index: 14; font-size: 12px; opacity: .8; pointer-events: auto; }
+
+  .ascii-text-container pre { font-weight: 700; font-size: 10px; }
+</style>
+</head>
+<body>
+
+<div class="vibes"></div>
+<canvas id="bounceCanvas"></canvas>
+<div id="ascii-container"></div>
+
+<div class="ui">
+  <button class="btn" id="btn-wave">toggle waves</button>
+  <button class="btn" id="btn-invert">invert charset</button>
+  <button class="btn" id="btn-big">bigger</button>
+</div>
+
+<div class="cluster">
+  <button class="btn big" id="btn-scream">SCREAM</button>
+  <button class="btn big" id="btn-mute">mute</button>
+</div>
+
+<div class="confetti" id="confetti"></div>
+<div class="glitch">UR OLD!</div>
+<div class="pulse" id="pulse">congrats — 18 years of chaos</div>
+<div class="hint">Tip: move mouse to shift the ascii plane | click to spawn confetti</div>
+
+<script>
+Math.map = function (n, start, stop, start2, stop2) {
+  return ((n - start) / (stop - start)) * (stop2 - start2) + start2;
+};
+
+const PX_RATIO = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
+
+class AsciiFilter {
+  constructor(renderer, { fontSize, fontFamily, charset, invert } = {}) {
+    this.renderer = renderer;
+    this.domElement = document.createElement('div');
+    this.domElement.style.position = 'absolute';
+    this.domElement.style.top = '0';
+    this.domElement.style.left = '0';
+    this.domElement.style.width = '100%';
+    this.domElement.style.height = '100%';
+
+    this.pre = document.createElement('pre');
+    this.domElement.appendChild(this.pre);
+
+    this.canvas = document.createElement('canvas');
+    this.context = this.canvas.getContext('2d');
+    this.domElement.appendChild(this.canvas);
+
+    this.deg = 0;
+    this.invert = invert ?? true;
+    this.fontSize = fontSize ?? 12;
+    this.fontFamily = fontFamily ?? "'Courier New', monospace";
+    this.charset = charset ?? " .'`^\",:;Il!i~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+
+    this.context.webkitImageSmoothingEnabled = false;
+    this.context.mozImageSmoothingEnabled = false;
+    this.context.msImageSmoothingEnabled = false;
+    this.context.imageSmoothingEnabled = false;
+
+    this.onMouseMove = this.onMouseMove.bind(this);
+    document.addEventListener('mousemove', this.onMouseMove);
+  }
+
+  setSize(width, height) {
+    this.width = width;
+    this.height = height;
+    this.renderer.setSize(width, height);
+    this.reset();
+
+    this.center = { x: width / 2, y: height / 2 };
+    this.mouse = { x: this.center.x, y: this.center.y };
+  }
+
+  reset() {
+    this.context.font = `${this.fontSize}px ${this.fontFamily}`;
+    const charWidth = this.context.measureText('A').width;
+
+    this.cols = Math.floor(this.width / (this.fontSize * (charWidth / this.fontSize)));
+    this.rows = Math.floor(this.height / this.fontSize);
+
+    this.canvas.width = this.cols;
+    this.canvas.height = this.rows;
+    this.pre.style.fontFamily = this.fontFamily;
+    this.pre.style.fontSize = `${this.fontSize}px`;
+    this.pre.style.margin = '0';
+    this.pre.style.padding = '0';
+    this.pre.style.lineHeight = '1em';
+    this.pre.style.position = 'absolute';
+    this.pre.style.left = '50%';
+    this.pre.style.top = '50%';
+    this.pre.style.transform = 'translate(-50%, -50%)';
+    this.pre.style.transformOrigin = 'center center';
+    this.pre.style.zIndex = '2';
+    this.pre.style.backgroundAttachment = 'fixed';
+    this.pre.style.mixBlendMode = 'normal';
+    this.pre.style.pointerEvents = 'none';
+    this.pre.style.textShadow = '0 2px 4px rgba(0,0,0,0.8)';
+    this.pre.style.whiteSpace = 'pre';
+    this.pre.style.color = '#ffffff';
+    this.pre.style.willChange = 'filter';
+    this.pre.style.maxWidth = '100vw';
+    this.pre.style.overflow = 'hidden';
+  }
+
+  render(scene, camera) {
+    this.renderer.render(scene, camera);
+
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    this.context.clearRect(0, 0, w, h);
+    if (this.context && w && h) {
+      this.context.drawImage(this.renderer.domElement, 0, 0, w, h);
+    }
+
+    this.asciify(this.context, w, h);
+    this.hue();
+  }
+
+  onMouseMove(e) {
+    this.mouse = { x: e.clientX * PX_RATIO, y: e.clientY * PX_RATIO };
+  }
+
+  get dx() {
+    return this.mouse.x - this.center.x;
+  }
+
+  get dy() {
+    return this.mouse.y - this.center.y;
+  }
+
+hue() {
+    const deg = (Math.atan2(this.dy, this.dx) * 180) / Math.PI;
+    this.deg += (deg - this.deg) * 0.075;
+    this.pre.style.filter = `hue-rotate(${this.deg.toFixed(1)}deg) drop-shadow(0 0 0 transparent)`;
+  }
+
+  asciify(ctx, w, h) {
+    if (w && h) {
+      const imgData = ctx.getImageData(0, 0, w, h).data;
+      let str = '';
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const i = x * 4 + y * 4 * w;
+          const [r, g, b, a] = [imgData[i], imgData[i + 1], imgData[i + 2], imgData[i + 3]];
+
+          if (a === 0) {
+            str += ' ';
+            continue;
+          }
+
+          let gray = (0.3 * r + 0.6 * g + 0.1 * b) / 255;
+          let idx = Math.floor((1 - gray) * (this.charset.length - 1));
+          if (this.invert) idx = this.charset.length - idx - 1;
+          str += this.charset[idx];
+        }
+        str += '\n';
+      }
+      this.pre.innerHTML = str;
+    }
+  }
+
+  dispose() {
+    document.removeEventListener('mousemove', this.onMouseMove);
+  }
+}
+
+class CanvasTxt {
+  constructor(txt, { fontSize = 200, fontFamily = 'Arial', color = '#fdf9f3' } = {}) {
+    this.canvas = document.createElement('canvas');
+    this.context = this.canvas.getContext('2d');
+    this.txt = txt;
+    this.fontSize = fontSize;
+    this.fontFamily = fontFamily;
+    this.color = color;
+
+    this.font = `600 ${this.fontSize}px ${this.fontFamily}`;
+  }
+
+  resize() {
+    this.context.font = this.font;
+    const metrics = this.context.measureText(this.txt);
+
+    const textWidth = Math.ceil(metrics.width) + 20;
+    const textHeight = Math.ceil(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent) + 20;
+
+    this.canvas.width = textWidth;
+    this.canvas.height = textHeight;
+  }
+
+  render() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.fillStyle = this.color;
+    this.context.font = this.font;
+
+    const metrics = this.context.measureText(this.txt);
+    const yPos = 10 + metrics.actualBoundingBoxAscent;
+
+    this.context.fillText(this.txt, 10, yPos);
+  }
+
+  get width() {
+    return this.canvas.width;
+  }
+
+  get height() {
+    return this.canvas.height;
+  }
+
+  get texture() {
+    return this.canvas;
+  }
+}
+
+const vertexShader = `
+varying vec2 vUv;
+uniform float uTime;
+uniform float mouse;
+uniform float uEnableWaves;
+
+void main() {
+    vUv = uv;
+    float time = uTime * 5.;
+
+    float waveFactor = uEnableWaves;
+
+    vec3 transformed = position;
+
+    transformed.x += sin(time + position.y) * 0.5 * waveFactor;
+    transformed.y += cos(time + position.z) * 0.15 * waveFactor;
+    transformed.z += sin(time + position.x) * waveFactor;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+}
+`;
+
+const fragmentShader = `
+varying vec2 vUv;
+uniform float mouse;
+uniform float uTime;
+uniform sampler2D uTexture;
+
+void main() {
+    float time = uTime;
+    vec2 pos = vUv;
+    
+    float move = sin(time + mouse) * 0.01;
+    float r = texture2D(uTexture, pos + cos(time * 2. - time + pos.x) * .01).r;
+    float g = texture2D(uTexture, pos + tan(time * .5 + pos.x - time) * .01).g;
+    float b = texture2D(uTexture, pos - cos(time * 2. + time + pos.y) * .01).b;
+    float a = texture2D(uTexture, pos).a;
+    gl_FragColor = vec4(r, g, b, a);
+}
+`;
+
+class CanvAscii {
+  constructor(
+    { text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves },
+    containerElem,
+    width,
+    height
+  ) {
+    this.textString = text;
+    this.asciiFontSize = asciiFontSize;
+    this.textFontSize = textFontSize;
+    this.textColor = textColor;
+    this.planeBaseHeight = planeBaseHeight;
+    this.container = containerElem;
+    this.width = width;
+    this.height = height;
+    this.enableWaves = enableWaves;
+
+    this.camera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 1000);
+    this.camera.position.z = 30;
+
+    this.scene = new THREE.Scene();
+    this.mouse = { x: 0, y: 0 };
+
+    this.onMouseMove = this.onMouseMove.bind(this);
+
+    this.setMesh();
+    this.setRenderer();
+  }
+
+  setMesh() {
+    this.textCanvas = new CanvasTxt(this.textString, {
+      fontSize: this.textFontSize,
+      fontFamily: 'IBM Plex Mono',
+      color: this.textColor
+    });
+    this.textCanvas.resize();
+    this.textCanvas.render();
+
+    this.texture = new THREE.CanvasTexture(this.textCanvas.texture);
+    this.texture.minFilter = THREE.NearestFilter;
+
+    const textAspect = this.textCanvas.width / this.textCanvas.height;
+    const baseH = this.planeBaseHeight;
+    const planeW = baseH * textAspect;
+    const planeH = baseH;
+
+    this.geometry = new THREE.PlaneGeometry(planeW, planeH, 36, 36);
+    this.material = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      transparent: true,
+      uniforms: {
+        uTime: { value: 0 },
+        mouse: { value: 1.0 },
+        uTexture: { value: this.texture },
+        uEnableWaves: { value: this.enableWaves ? 1.0 : 0.0 }
+      }
+    });
+
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.scene.add(this.mesh);
+  }
+
+  setRenderer() {
+    this.renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+    this.renderer.setPixelRatio(1);
+    this.renderer.setClearColor(0x000000, 0);
+
+    this.filter = new AsciiFilter(this.renderer, {
+      fontFamily: 'IBM Plex Mono',
+      fontSize: this.asciiFontSize,
+      invert: true
+    });
+
+    this.container.appendChild(this.filter.domElement);
+    this.setSize(this.width, this.height);
+
+    this.container.addEventListener('mousemove', this.onMouseMove);
+    this.container.addEventListener('touchmove', this.onMouseMove);
+  }
+
+  setSize(w, h) {
+    this.width = w;
+    this.height = h;
+
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+
+    this.filter.setSize(w, h);
+
+    this.center = { x: w / 2, y: h / 2 };
+  }
+
+  load() {
+    this.animate();
+  }
+
+  onMouseMove(evt) {
+    const e = evt.touches ? evt.touches[0] : evt;
+    const bounds = this.container.getBoundingClientRect();
+    const x = e.clientX - bounds.left;
+    const y = e.clientY - bounds.top;
+    this.mouse = { x, y };
+  }
+
+  animate() {
+    const animateFrame = () => {
+      this.animationFrameId = requestAnimationFrame(animateFrame);
+      this.render();
+    };
+    animateFrame();
+  }
+
+  render() {
+    const time = new Date().getTime() * 0.001;
+
+    this.textCanvas.render();
+    this.texture.needsUpdate = true;
+
+    this.mesh.material.uniforms.uTime.value = Math.sin(time);
+
+    this.updateRotation();
+    this.filter.render(this.scene, this.camera);
+  }
+
+  updateRotation() {
+    const x = Math.map(this.mouse.y, 0, this.height, 0.5, -0.5);
+    const y = Math.map(this.mouse.x, 0, this.width, -0.5, 0.5);
+
+    this.mesh.rotation.x += (x - this.mesh.rotation.x) * 0.05;
+    this.mesh.rotation.y += (y - this.mesh.rotation.y) * 0.05;
+  }
+
+  clear() {
+    this.scene.traverse(obj => {
+      if (obj.isMesh && typeof obj.material === 'object' && obj.material !== null) {
+        Object.keys(obj.material).forEach(key => {
+          const matProp = obj.material[key];
+          if (matProp !== null && typeof matProp === 'object' && typeof matProp.dispose === 'function') {
+            matProp.dispose();
+          }
+        });
+        obj.material.dispose();
+        obj.geometry.dispose();
+      }
+    });
+    this.scene.clear();
+  }
+
+  dispose() {
+    cancelAnimationFrame(this.animationFrameId);
+    this.filter.dispose();
+    try { this.container.removeChild(this.filter.domElement); } catch(e){}
+    this.container.removeEventListener('mousemove', this.onMouseMove);
+    this.container.removeEventListener('touchmove', this.onMouseMove);
+    this.clear();
+    if (this.renderer) this.renderer.dispose();
+  }
+}
+
+(function initAscii() {
+  const asciiRoot = document.getElementById('ascii-container');
+
+  const asciiContainer = document.createElement('div');
+  asciiContainer.style.position = 'absolute';
+  asciiContainer.style.left = '0';
+  asciiContainer.style.top = '0';
+  asciiContainer.style.width = '100%';
+  asciiContainer.style.height = '100%';
+  asciiRoot.appendChild(asciiContainer);
+
+  const opts = {
+    text: 'ur old!    ',
+    asciiFontSize: 8,
+    textFontSize: 280,
+    textColor: '#ffffff',
+    planeBaseHeight: 8,
+    enableWaves: true
+  };
+
+  const canvAscii = new CanvAscii(opts, asciiContainer, Math.max(window.innerWidth, 200), Math.max(window.innerHeight, 200));
+  canvAscii.load();
+
+  const ro = new ResizeObserver(entries => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    if (w > 0 && h > 0) {
+      canvAscii.setSize(w, h);
+    }
+  });
+  ro.observe(document.body);
+
+  document.getElementById('btn-wave').addEventListener('click', () => {
+    canvAscii.mesh.material.uniforms.uEnableWaves.value = canvAscii.mesh.material.uniforms.uEnableWaves.value ? 0.0 : 1.0;
+    document.getElementById('pulse').style.background = 'linear-gradient(90deg, rgba(255,0,150,0.08), rgba(0,255,200,0.03))';
+    setTimeout(()=> document.getElementById('pulse').style.background = '', 400);
+  });
+
+  const asciiFilter = canvAscii.filter;
+  document.getElementById('btn-invert').addEventListener('click', () => {
+    asciiFilter.invert = !asciiFilter.invert;
+    asciiFilter.pre.style.transform = `translate(-50%,-50%) rotate(${(Math.random()-0.5)*8}deg)`;
+    setTimeout(()=> asciiFilter.pre.style.transform = 'translate(-50%,-50%)', 350);
+  });
+
+  document.getElementById('btn-big').addEventListener('click', () => {
+    canvAscii.textFontSize = Math.min(canvAscii.textFontSize + 40, 1200);
+    canvAscii.textCanvas.fontSize = canvAscii.textFontSize;
+    canvAscii.textCanvas.font = `600 ${canvAscii.textFontSize}px IBM Plex Mono`;
+    canvAscii.textCanvas.resize();
+    canvAscii.textCanvas.render();
+    canvAscii.texture.needsUpdate = true;
+  });
+
+  window.__canvAscii = canvAscii;
+})();
+
+(function initBouncingImages(){
+  const canvas = document.getElementById('bounceCanvas');
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
+
+  const urls = [
+    "https://i1.sndcdn.com/artworks-jUsXxEQDwwqPFOJj-Te6ilA-t240x240.jpg",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHOoszszf6xP7MfkZC3hDfict-V8YGUceY_g&s",
+    "https://media.tenor.com/3In54SsKPIQAAAAM/hamster-hamster-meme.gif",
+    "https://preview.redd.it/my-friend-keeps-sending-these-hamsters-as-reaction-images-v0-p95a726z385f1.jpg?width=640&crop=smart&auto=webp&s=ed44a1d821a3864464ddbb4ceeb8967f3e237458",
+    "https://media.tenor.com/Cr1br7CEaOIAAAAe/stupid-hamster-hamster-meme.png",
+    "https://media.discordapp.net/attachments/1433131136409931786/1439444322696171540/image0.jpg?ex=691a8a7e&is=691938fe&hm=780e5b281f41ef52444f9b0b034cf7fa8419c530ff207963f88e186ae5038342&=&format=webp&width=384&height=384",
+    "https://media.discordapp.net/attachments/1276146339910258700/1439449140068352141/IMG_5047.png?ex=691a8efa&is=69193d7a&hm=685f971cb7a0c7fddb02a0a16c04f2aacaf6cfe2b75731b71e63ca56a3b9370c&=&format=webp&quality=lossless&width=900&height=874",
+    "https://media.discordapp.net/attachments/1276146339910258700/1439449141389295719/IMG_4514.png?ex=691a8efa&is=69193d7a&hm=3f378a59c37cc1deef07617e5c6ebcb346d018f8f386eadab0c87bc751d10ce9&=&format=webp&quality=lossless&width=689&height=906",
+    "https://media.discordapp.net/attachments/1276146339910258700/1439449143214080101/IMG_4056.png?ex=691a8efb&is=69193d7b&hm=50003377e83f2c2b4a9670752f890de0cc12850e5541b16f07d4a083836c4609&=&format=webp&quality=lossless&width=831&height=490",
+    "https://media.discordapp.net/attachments/1249472023936372879/1436330365169041511/20251106_134238.jpg?ex=691a6b24&is=691919a4&hm=417372b05e0c1c2240ea808936648078ee38871a89bef5ed9257554f2e869eb1&=&format=webp&width=742&height=990",
+    "https://media.discordapp.net/attachments/1249472023936372879/1436012761116315688/20251106_102132.jpg?ex=6919ec1a&is=69189a9a&hm=7e503ab35e88caf9bb52c9eca66cea0914ea4a8d6d9bffd91ac19f1ff16a6c7b&=&format=webp&width=936&height=974",
+    "https://media.discordapp.net/attachments/1433131136409931786/1439452433796567110/image.png?ex=691a920b&is=6919408b&hm=32b7250dd3a11af7f11a1e6ee25962b818f73793a7a1db3c45ddd0bc1e91d19c&=&format=webp&quality=lossless&width=294&height=171"
+  ];
+
+  const sprites = [];
+
+  let loaded = 0;
+  urls.forEach((url, i) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = url;
+    img.onload = () => {
+      const size = 90 + Math.random()*80;
+      const ratio = img.width / img.height || 1;
+      const w = Math.min(size, W*0.22);
+      const h = w / (ratio || 1);
+      const x = Math.random() * (W - w);
+      const y = Math.random() * (H - h);
+      const speed = 1 + Math.random()*3;
+      const angle = Math.random() * Math.PI * 2;
+      sprites.push({
+        img, x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        w, h,
+        mass: (w*h) / 1000
+      });
+      loaded++;
+    };
+    img.onerror = () => {
+      loaded++;
+    };
+  });
+
+    function isColliding(a, b) {
+    return (
+        a.x < b.x + b.w &&
+        a.x + a.w > b.x &&
+        a.y < b.y + b.h &&
+        a.y + a.h > b.y
+    );
+    }
+
+    function resolveCollision(a, b) {
+    // Calculate overlap on x and y axis
+    const overlapX = (a.w/2 + b.w/2) - Math.abs((a.x + a.w/2) - (b.x + b.w/2));
+    const overlapY = (a.h/2 + b.h/2) - Math.abs((a.y + a.h/2) - (b.y + b.h/2));
+
+    // No overlap → no collision
+    if (overlapX <= 0 || overlapY <= 0) return;
+
+    // Resolve whichever overlap is smaller (prevents jitter)
+    if (overlapX < overlapY) {
+        // Push sideways
+        if (a.x < b.x) {
+        a.x -= overlapX / 2;
+        b.x += overlapX / 2;
+        } else {
+        a.x += overlapX / 2;
+        b.x -= overlapX / 2;
+        }
+
+        // Swap X velocities (mass taken into account)
+        const vx1 = a.vx;
+        a.vx = b.vx * (b.mass / a.mass);
+        b.vx = vx1 * (a.mass / b.mass);
+    } else {
+        // Push vertically
+        if (a.y < b.y) {
+        a.y -= overlapY / 2;
+        b.y += overlapY / 2;
+        } else {
+        a.y += overlapY / 2;
+        b.y -= overlapY / 2;
+        }
+
+        // Swap Y velocities
+        const vy1 = a.vy;
+        a.vy = b.vy * (b.mass / a.mass);
+        b.vy = vy1 * (a.mass / b.mass);
+    }
+
+    // Add a small damping so they don't get chaotic
+    a.vx *= 0.97;
+    a.vy *= 0.97;
+    b.vx *= 0.97;
+    b.vy *= 0.97;
+    }
+
+
+  function step() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    ctx.clearRect(0,0,W,H);
+    if (loaded < urls.length) {
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = 'white';
+      ctx.font = '18px IBM Plex Mono, monospace';
+      ctx.fillText('loading images...', 20, 40);
+      requestAnimationFrame(step);
+      return;
+    }
+
+    for (let i = 0; i < sprites.length; i++) {
+      const s = sprites[i];
+      s.x += s.vx;
+      s.y += s.vy;
+
+      if (s.x <= 0) { s.x = 0; s.vx *= -1; s.vx *= 0.98; }
+      if (s.x + s.w >= W) { s.x = W - s.w; s.vx *= -1; s.vx *= 0.98; }
+      if (s.y <= 0) { s.y = 0; s.vy *= -1; s.vy *= 0.98; }
+      if (s.y + s.h >= H) { s.y = H - s.h; s.vy *= -1; s.vy *= 0.98; }
+    }
+
+    for (let i = 0; i < sprites.length; i++) {
+      for (let j = i+1; j < sprites.length; j++) {
+        const a = sprites[i], b = sprites[j];
+        if (isColliding(a, b)) {
+          resolveCollision(a, b);
+        }
+      }
+    }
+
+    for (let i = 0; i < sprites.length; i++) {
+      const s = sprites[i];
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(s.x + 6, s.y + s.h - 6, s.w - 6, 6);
+      ctx.globalAlpha = 1;
+      try {
+        ctx.drawImage(s.img, s.x, s.y, s.w, s.h);
+      } catch(e) {
+        ctx.fillStyle = '#333';
+        ctx.fillRect(s.x, s.y, s.w, s.h);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  window.addEventListener('resize', () => {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  });
+
+  document.body.addEventListener('click', (ev) => {
+    spawnConfetti(12);
+    const cx = ev.clientX, cy = ev.clientY;
+    sprites.forEach(s => {
+      const dx = s.x + s.w/2 - cx;
+      const dy = s.y + s.h/2 - cy;
+      const dist = Math.sqrt(dx*dx + dy*dy) + 20;
+      const push = 6 + Math.random()*6;
+      s.vx += (dx / dist) * push;
+      s.vy += (dy / dist) * push;
+    });
+  });
+
+  requestAnimationFrame(step);
+})();
+
+(function initConfettiAudio(){
+  const confettiRoot = document.getElementById('confetti');
+  const emojis = ['🎉','🥳','🍰','🎂','💀','🔥','👀','🤡','🌈','🧨','✨','🪩'];
+
+  function spawnConfetti(n = 10) {
+    for (let i=0;i<n;i++){
+      const s = document.createElement('span');
+      s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      const left = Math.random() * 100;
+      s.style.left = left + 'vw';
+      s.style.top = (Math.random()*-10)+'vh';
+      s.style.fontSize = (12 + Math.random()*40) + 'px';
+      s.style.opacity = 0.95;
+      const dur = 3 + Math.random()*5;
+      s.style.animationDuration = dur + 's';
+      s.style.animationDelay = (Math.random()*0.3) + 's';
+      s.style.transform = `rotate(${Math.random()*360}deg)`;
+      confettiRoot.appendChild(s);
+      setTimeout(()=> {
+        try { confettiRoot.removeChild(s); } catch(e){}
+      }, (dur+0.8)*1000);
+    }
+  }
+
+  setInterval(()=> spawnConfetti(6 + Math.floor(Math.random()*6)), 2500);
+
+    let audio;
+    function beep() {
+        try {
+            if (!audio) {
+            audio = new Audio("https://media1.vocaroo.com/mp3/1e2uQQWdpYFA"); // replace with your link
+            }
+            audio.currentTime = 0; // restart if already playing
+            audio.play();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+  const btnScream = document.getElementById('btn-scream');
+  const btnMute = document.getElementById('btn-mute');
+  let muted = false;
+
+  btnScream.addEventListener('click', () => {
+    const asciiContainer = document.getElementById('ascii-container');
+    if (asciiContainer) {
+      asciiContainer.style.transition = 'filter .2s linear';
+      asciiContainer.style.filter = 'hue-rotate(200deg) saturate(2)';
+      setTimeout(()=> asciiContainer.style.filter = '', 700);
+    }
+    spawnConfetti(24);
+    if (!muted) beep();
+  });
+
+  btnMute.addEventListener('click', (e) => {
+    muted = !muted;
+    e.target.textContent = muted ? 'unmute' : 'mute';
+    if (audioCtx && muted) audioCtx.suspend();
+    else if (audioCtx && !muted) audioCtx.resume();
+  });
+
+  setInterval(()=> {
+    const p = document.getElementById('pulse');
+    p.style.transform = `translateX(-50%) rotate(${(Math.random()-0.5)*2}deg) scale(${1+Math.random()*0.02})`;
+    setTimeout(()=> p.style.transform = 'translateX(-50%)', 200);
+  }, 1200);
+
+  window.spawnConfetti = spawnConfetti;
+})();
+</script>
+</body>
+</html>
