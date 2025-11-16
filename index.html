@@ -716,26 +716,36 @@ class CanvAscii {
 
   const sprites = [];
   let loaded = 0;
-  
+  const baseSize = 120;
+
   urls.forEach((url) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = url;
     img.onload = () => {
-      const size = 90 + Math.random()*80;
       const ratio = img.width / img.height || 1;
-      const w = Math.min(size, W*0.22);
-      const h = w / ratio;
+
+      // scale width and height based on baseSize while keeping ratio
+      let w, h;
+      if (ratio > 1) { // wide image
+        w = baseSize;
+        h = baseSize / ratio;
+      } else { // tall or square image
+        h = baseSize;
+        w = baseSize * ratio;
+      }
+
       const x = Math.random() * (W - w);
       const y = Math.random() * (H - h);
-      const speed = 1 + Math.random()*3;
+      const speed = 1 + Math.random() * 3;
       const angle = Math.random() * Math.PI * 2;
+
       sprites.push({
         img, x, y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         w, h,
-        mass: (w*h) / 1000
+        mass: (w * h) / 1000
       });
       loaded++;
     };
