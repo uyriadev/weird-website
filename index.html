@@ -693,20 +693,14 @@ class CanvAscii {
 
   const urls = [
     "https://i1.sndcdn.com/artworks-jUsXxEQDwwqPFOJj-Te6ilA-t240x240.jpg",
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHOoszszf6xP7MfkZC3hDfict-V8YGUceY_g&s",
     "https://media.tenor.com/3In54SsKPIQAAAAM/hamster-hamster-meme.gif",
     "https://media.tenor.com/Cr1br7CEaOIAAAAe/stupid-hamster-hamster-meme.png",
     "https://media.discordapp.net/attachments/1433131136409931786/1439444322696171540/image0.jpg?ex=691a8a7e&is=691938fe&hm=780e5b281f41ef52444f9b0b034cf7fa8419c530ff207963f88e186ae5038342&=&format=webp&width=384&height=384",
     "https://media.discordapp.net/attachments/1276146339910258700/1439449140068352141/IMG_5047.png?ex=691a8efa&is=69193d7a&hm=685f971cb7a0c7fddb02a0a16c04f2aacaf6cfe2b75731b71e63ca56a3b9370c&=&format=webp&quality=lossless&width=900&height=874",
     "https://media.discordapp.net/attachments/1276146339910258700/1439449141389295719/IMG_4514.png?ex=691a8efa&is=69193d7a&hm=3f378a59c37cc1deef07617e5c6ebcb346d018f8f386eadab0c87bc751d10ce9&=&format=webp&quality=lossless&width=689&height=906",
-    "https://media.discordapp.net/attachments/1276146339910258700/1439449143214080101/IMG_4056.png?ex=691a8efb&is=69193d7b&hm=50003377e83f2c2b4a9670752f890de0cc12850e5541b16f07d4a083836c4609&=&format=webp&quality=lossless&width=831&height=490",
-    "https://media.discordapp.net/attachments/1249472023936372879/1436330365169041511/20251106_134238.jpg?ex=691a6b24&is=691919a4&hm=417372b05e0c1c2240ea808936648078ee38871a89bef5ed9257554f2e869eb1&=&format=webp&width=742&height=990",
-    "https://media.discordapp.net/attachments/1383079409602265138/1439715189715894363/10.jpg?ex=691b86c1&is=691a3541&hm=06abdfbaf7b1376d6334ba60420d04247944d1398751a2c080d97ee2668bf360&=&format=webp&width=568&height=568",
-    "https://media.discordapp.net/attachments/1383079409602265138/1439715543744512093/12.jpg?ex=691b8716&is=691a3596&hm=3ee87fdc5c50573f75c754414a4c2e1fbc2c25a4870a2bca1995da19769f0067&=&format=webp&width=589&height=614",
+    "https://media.discordapp.net/attachments/1249472023936372879/1436330365169041511/20251106_134238.jpg?ex=691a6b24&is=691919a4&hm=417372b05e0c1c2240ea808936648078ee38871a89bef5ed9257554f2e869eb1&=&format=webp&width=742&height=990",    "https://media.discordapp.net/attachments/1383079409602265138/1439715543744512093/12.jpg?ex=691b8716&is=691a3596&hm=3ee87fdc5c50573f75c754414a4c2e1fbc2c25a4870a2bca1995da19769f0067&=&format=webp&width=589&height=614",
     "https://images-ext-1.discordapp.net/external/9g5X_AQMw8l8fInwsAZxK-bHFn8f2Ebqa7paTgXTOKw/https/media.tenor.com/_z4jgfQWAqsAAAPo/minor-inconvenience2x-speed.mp4",
     "https://media.discordapp.net/attachments/1383079409602265138/1439715654084329672/13.jpg?ex=691b8730&is=691a35b0&hm=3fd5d04bed021ea59b40990e78a0cc18d765f0a945ced9bae0a1bc1af109e0a4&=&format=webp&width=586&height=864",
-    "https://images-ext-1.discordapp.net/external/L3wivlJc1sNGpdoLIZ5gsSKol5BqJMusKZdCzpOyVbI/https/media.tenor.com/7AJrMieH1zQAAAPo/meme.mp4",
-    "https://media.discordapp.net/attachments/1383079409602265138/1439716057597214730/14.jpg?ex=691b8790&is=691a3610&hm=5a80a58debe1ea0e1a0c1e179576fac6b8d602e9d4a080a666829dae53e86dc5&=&format=webp&width=589&height=589",
     "https://i.ebayimg.com/images/g/A0UAAOSwi6plNp-P/s-l1200.png",
     "https://images-ext-1.discordapp.net/external/vzkytdoBixtZKvhVuuDb3A3YytFg1Amdk2YSs6M0PLo/https/media.tenor.com/QJ7OYh157fcAAAPo/sonic.mp4",
     "https://media.discordapp.net/attachments/1433131136409931786/1439452433796567110/image.png?ex=691a920b&is=6919408b&hm=32b7250dd3a11af7f11a1e6ee25962b818f73793a7a1db3c45ddd0bc1e91d19c&=&format=webp&quality=lossless&width=294&height=171",
@@ -716,7 +710,7 @@ class CanvAscii {
 
   const sprites = [];
   let loaded = 0;
-  const baseSize = 120;
+  const baseSize = 100;
 
   urls.forEach((url) => {
     const img = new Image();
