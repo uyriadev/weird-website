@@ -662,7 +662,6 @@ class CanvAscii {
     "https://i1.sndcdn.com/artworks-jUsXxEQDwwqPFOJj-Te6ilA-t240x240.jpg",
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHOoszszf6xP7MfkZC3hDfict-V8YGUceY_g&s",
     "https://media.tenor.com/3In54SsKPIQAAAAM/hamster-hamster-meme.gif",
-    "https://preview.redd.it/my-friend-keeps-sending-these-hamsters-as-reaction-images-v0-p95a726z385f1.jpg?width=640&crop=smart&auto=webp&s=ed44a1d821a3864464ddbb4ceeb8967f3e237458",
     "https://media.tenor.com/Cr1br7CEaOIAAAAe/stupid-hamster-hamster-meme.png",
     "https://media.discordapp.net/attachments/1433131136409931786/1439444322696171540/image0.jpg?ex=691a8a7e&is=691938fe&hm=780e5b281f41ef52444f9b0b034cf7fa8419c530ff207963f88e186ae5038342&=&format=webp&width=384&height=384",
     "https://media.discordapp.net/attachments/1276146339910258700/1439449140068352141/IMG_5047.png?ex=691a8efa&is=69193d7a&hm=685f971cb7a0c7fddb02a0a16c04f2aacaf6cfe2b75731b71e63ca56a3b9370c&=&format=webp&quality=lossless&width=900&height=874",
@@ -857,18 +856,14 @@ class CanvAscii {
 
   setInterval(()=> spawnConfetti(6 + Math.floor(Math.random()*6)), 2500);
 
-    let audio;
-    function beep() {
-        try {
-            if (!audio) {
-            audio = new Audio("https://github.com/uyriadev/weird-website/raw/refs/heads/main/man-scream-08-352438.mp3"); // replace with your link
-            }
-            audio.currentTime = 0; // restart if already playing
-            audio.play();
-        } catch (e) {
-            console.error(e);
-        }
-    }
+    
+let audio = new Audio("https://github.com/uyriadev/weird-website/raw/refs/heads/main/man-scream-08-352438.mp3");
+
+function beep() {
+    audio.currentTime = 0;
+    audio.play().catch(err => console.log(err));
+}
+
 
   const btnScream = document.getElementById('btn-scream');
   const btnMute = document.getElementById('btn-mute');
@@ -900,6 +895,43 @@ class CanvAscii {
 
   window.spawnConfetti = spawnConfetti;
 })();
+
+const base64Url = "https://raw.githubusercontent.com/uyriadev/weird-website/main/WhatsApp%20Dance%20base64.txt";
+
+console.log("Fetching Base64 audio from GitHub...");
+
+fetch(base64Url)
+  .then(res => {
+    console.log("Fetch response received:", res.status, res.statusText);
+    return res.text();
+  })
+  .then(base64 => {
+    console.log("Base64 loaded. Length:", base64.length);
+
+    const audio = new Audio("data:audio/mpeg;base64," + base64);
+    audio.loop = true;
+    audio.autoplay = true;
+    document.body.appendChild(audio);
+
+    console.log("Audio element created. Attempting to play...");
+
+    audio.play().then(() => {
+      console.log("Audio is playing!");
+    }).catch(() => {
+      console.warn("Autoplay blocked. Waiting for user interaction to start audio...");
+      const start = () => {
+        audio.play().then(() => console.log("Audio started after interaction!"))
+          .catch(err => console.error("Failed to play audio after interaction:", err));
+        document.removeEventListener("click", start);
+        document.removeEventListener("keydown", start);
+      };
+      document.addEventListener("click", start);
+      document.addEventListener("keydown", start);
+    });
+  })
+  .catch(err => console.error("Failed to load Base64 audio:", err));
+
+
 </script>
 </body>
 </html>
